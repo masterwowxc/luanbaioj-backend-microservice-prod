@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luanbai.question.mapper.QuestionSubmitMapper">
+
+    <resultMap id="BaseResultMap" type="com.luanbai.model.entity.QuestionSubmit">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="language" column="language" jdbcType="VARCHAR"/>
+            <result property="code" column="code" jdbcType="VARCHAR"/>
+            <result property="judgeInfo" column="judge_info" jdbcType="VARCHAR"/>
+            <result property="status" column="status" jdbcType="INTEGER"/>
+            <result property="questionId" column="question_id" jdbcType="BIGINT"/>
+            <result property="userId" column="user_id" jdbcType="BIGINT"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+            <result property="isDelete" column="is_delete" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,language,code,
+        judge_info,status,question_id,
+        user_id,create_time,update_time,
+        is_delete
+    </sql>
+    <select id="countQuestionSubmit" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM question_submit qs
+        LEFT JOIN `user` u ON qs.user_id = u.id
+        LEFT JOIN question q ON qs.question_id = q.id
+        <where>
+            qs.is_delete = 0
+            <if test="title !=null and title != ''">
+                AND q.title LIKE CONCAT('%', #{title}, '%')
+            </if>
+            <if test="language !=null and language != ''">
+                AND qs.language = #{language}
+            </if>
+        </where>
+    </select>
+    <select id="selectQuestionSubmit" resultType="com.luanbai.model.vo.QuestionSubmitViewVO">
+        SELECT q.id questionId,q.title questionTitle, qs.language, qs.judge_info judgeInfo, qs.create_time createTime,
+        u.user_name userName
+        FROM question_submit qs
+        LEFT JOIN `user` u ON qs.user_id = u.id
+        LEFT JOIN question q ON qs.question_id = q.id
+        <where>
+            qs.is_delete = 0
+            <if test="title !=null and title != ''">
+                AND q.title LIKE CONCAT('%', #{title}, '%')
+            </if>
+            <if test="language !=null and language != ''">
+                AND qs.language = #{language}
+            </if>
+        </where>
+        ORDER BY qs.create_time DESC
+        LIMIT #{pageIndex}, #{size};
+    </select>
+</mapper>
